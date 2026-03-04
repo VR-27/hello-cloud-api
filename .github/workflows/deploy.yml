@@ -33,18 +33,18 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-  deploy:
-    needs: build-and-push # Waits for the build job to finish first
+ deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: SSH into EC2 and Deploy
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu # Default username for Ubuntu EC2 instances
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, ECR_REGISTRY
-         script: |
+          script: |
             # 1. Install unzip and the official AWS CLI v2
             sudo apt-get update && sudo apt-get install unzip curl -y
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
