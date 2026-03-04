@@ -1,13 +1,12 @@
 name: Build and Deploy to EC2
 
-# This tells GitHub to run this script every time you push to the 'main' branch
 on:
   push:
     branches:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -32,17 +31,13 @@ jobs:
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latestAll 
-    steps:
+
       - name: SSH into EC2 and Deploy
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, ECR_REGISTRY
           script: |
             # 1. Install unzip and the official AWS CLI v2
             sudo apt-get update && sudo apt-get install unzip curl -y
